@@ -53,7 +53,6 @@ export async function createContact(req, res, next) {
 
     const { error, value } = createContactSchema.validate({ name, email, phone }, { convert: false }
     );
-    
     if (typeof error !== "undefined") {
       return res.status(400).json({ message: error.message })
     }
