@@ -6,7 +6,9 @@ import {
 } from "../services/contactsServices.js";
 import HttpError from "../helpers/HttpError.js";
 
-export async function getAllContacts (req, res, next) {
+import { createContactSchema } from "../schema/contactsSchemas.js"
+
+export async function getAllContacts(req, res, next) {
   try {
     const allContacts = await listContacts();
     res.status(200).json(allContacts);
@@ -15,7 +17,7 @@ export async function getAllContacts (req, res, next) {
   }
 };
 
-export async function getOneContact(req, res, ) {
+export async function getOneContact(req, res,) {
   try {
     const { id } = req.params;
     const oneContact = await getContactById(id);
@@ -26,8 +28,8 @@ export async function getOneContact(req, res, ) {
       next(error404);
     }
   } catch (error) {
-      next(error);
-  } 
+    next(error);
+  }
 };
 
 export async function deleteContact(req, res, next) {
@@ -42,11 +44,25 @@ export async function deleteContact(req, res, next) {
     }
   } catch (error) {
     next(error);
-  } 
+  }
 };
 
-export function createContact(req, res) {
-  
+export async function createContact(req, res, next) {
+  try {
+    const { name, email, phone } = req.body;
+
+    const { error, value } = createContactSchema.validate({ name, email, phone }, { convert: false }
+    );
+    
+    if (typeof error !== "undefined") {
+      return res.status(400).json({ message: error.message })
+    }
+    const newContact = await addContact({ name, phone, email });
+
+    res.status(201).json(newContact);
+  } catch (error) {
+    next(error);
+  }
 };
 
-export function updateContact (req, res) {};
+export function updateContact(req, res) { };
