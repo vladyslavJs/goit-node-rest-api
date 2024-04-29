@@ -64,4 +64,7 @@ export async function createContact(req, res, next) {
   }
 };
 
-export function updateContact(req, res) { };
+export function updateContact(req, res) { 
+
+  
+};
