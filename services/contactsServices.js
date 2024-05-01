@@ -57,3 +57,25 @@ export async function addContact(name, email, phone) {
     await writeContacts([...contacts, newContact]);
     return newContact;
 }
+
+export async function modifyContact(contactId, contactData) {
+  const contacts = await listContacts();
+  const contact = contacts.find((contact) => contact.id === contactId);
+
+  if (typeof contact === "undefined") return null;
+
+  const updatedContacts = contacts.filter(
+    (contact) => contact.id !== contactId
+  );
+
+  const updatedContact = {
+    ...contact,
+    ...contactData,
+  };
+
+  updatedContacts.push(updatedContact);
+
+  writeContacts(updatedContacts);
+
+  return updatedContact;
+}
