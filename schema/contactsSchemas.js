@@ -15,13 +15,11 @@ export const createContactSchema = Joi.object({
 
 export const updateContactSchema = Joi.object({
     name: Joi.string()
-        .min(6)
-        .max(15)
-        .required(),
+        .min(2)
+        .max(50),
     email: Joi.string()
         .email({ minDomainSegments: 2, tlds: { allow: false } })
         .required(),
     phone: Joi.string()
-        .pattern(/^[0-9]{10}$/)
-        .required(),
+        .pattern(/^(\+?38)?(0\d{9})$/),
 });
