@@ -58,23 +58,24 @@ export async function addContact(name, email, phone) {
     return newContact;
 }
 
-export async function updateContact(contactId, updateData) {
-    const contacts = await listContacts();
-    const contact = contacts.find((contact) => contact.id === contactId);
+export async function modifyContact(contactId, contactData) {
+  const contacts = await listContacts();
+  const contact = contacts.find((contact) => contact.id === contactId);
 
-    if (typeof contact === "undefined") {
-        return null;
-    }
+  if (typeof contact === "undefined") return null;
 
-    const updateContacts = contacts.filter((contact) => contact.id !== contactId);
+  const updatedContacts = contacts.filter(
+    (contact) => contact.id !== contactId
+  );
 
-    const modifyContact = {
-        ...contact,
-        ...updateData,
-    };
-    
-    updateContacts.push(modifyContact);
+  const updatedContact = {
+    ...contact,
+    ...contactData,
+  };
 
-    writeContacts(updateContacts);
-    return modifyContact;
+  updatedContacts.push(updatedContact);
+
+  writeContacts(updatedContacts);
+
+  return updatedContact;
 }
