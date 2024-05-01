@@ -2,11 +2,12 @@ import {
   listContacts,
   addContact,
   getContactById,
-  removeContact
+  removeContact,
+  modifyContact,
 } from "../services/contactsServices.js";
 import HttpError from "../helpers/HttpError.js";
 
-import { createContactSchema } from "../schema/contactsSchemas.js"
+import { createContactSchema, updateContactSchema } from "../schema/contactsSchemas.js"
 
 export async function getAllContacts(req, res, next) {
   try {
@@ -24,8 +25,7 @@ export async function getOneContact(req, res,) {
     if (oneContact) {
       res.status(200).json(oneContact);
     } else {
-      const error404 = HttpError(404);
-      next(error404);
+      throw HttpError(404);
     }
   } catch (error) {
     next(error);
@@ -39,8 +39,7 @@ export async function deleteContact(req, res, next) {
     if (deletedContact) {
       res.status(200).json(deletedContact);
     } else {
-      const error404 = HttpError(404);
-      next(error404);
+      throw HttpError(404);
     }
   } catch (error) {
     next(error);
@@ -64,7 +63,29 @@ export async function createContact(req, res, next) {
   }
 };
 
-export function updateContact(req, res) { 
+export async function updateContact(req, res, next) { 
+  try {
+    const { id } = req.params;
+    const updateFields = req.body;
 
-  
+    if (Object.keys(updateFields).length === 0) {
+      return res.status(400).json({ message: "Body must have at least one field" });
+    }
+    
+    const { error } = updateContactSchema.validate(updateFields);
+    if (error) {
+      throw HttpError(400);
+    }
+    const availableContact = await getContactById(id);
+    if (!availableContact) {
+      throw HttpError(404);
+    }
+
+    const updatedContact = await modifyContact(id, updateFields);
+
+    return res.status(200).json(updatedContact);
+
+  } catch (error) {
+    next(error);  
+  }
 };
