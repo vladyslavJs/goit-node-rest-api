@@ -25,7 +25,7 @@ export async function getOneContact(req, res,) {
     if (oneContact) {
       res.status(200).json(oneContact);
     } else {
-      throw HttpError(404, error.message);
+      throw HttpError(404);
     }
   } catch (error) {
     next(error);
@@ -39,7 +39,7 @@ export async function deleteContact(req, res, next) {
     if (deletedContact) {
       res.status(200).json(deletedContact);
     } else {
-      throw HttpError(404, error.message);
+      throw HttpError(404);
     }
   } catch (error) {
     next(error);
