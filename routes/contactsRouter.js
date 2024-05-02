@@ -7,6 +7,9 @@ import {
   updateContact,
 } from "../controllers/contactControllers.js";
 
+import { updateContactSchema } from "../schema/contactsSchemas.js";
+import validateBody from "../helpers/validateBody.js";
+
 const contactsRouter = express.Router();
 
 contactsRouter.get("/", getAllContacts);
@@ -17,6 +20,6 @@ contactsRouter.delete("/:id", deleteContact);
 
 contactsRouter.post("/", createContact);
 
-contactsRouter.put("/:id", updateContact);
+contactsRouter.put("/:id", validateBody(updateContactSchema), updateContact);
 
 export default contactsRouter;
