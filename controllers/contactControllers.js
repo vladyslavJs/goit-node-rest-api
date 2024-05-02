@@ -7,8 +7,6 @@ import {
 } from "../services/contactsServices.js";
 import HttpError from "../helpers/HttpError.js";
 
-import { createContactSchema } from "../schema/contactsSchemas.js"
-
 export async function getAllContacts(req, res, next) {
   try {
     const allContacts = await listContacts();
@@ -41,6 +39,7 @@ export async function deleteContact(req, res, next) {
     } else {
       throw HttpError(404);
     }
+
   } catch (error) {
     next(error);
   }
@@ -50,14 +49,9 @@ export async function createContact(req, res, next) {
   try {
     const { name, email, phone } = req.body;
 
-    const { error, value } = createContactSchema.validate({ name, email, phone }, { convert: false }
-    );
-    if (error) {
-      throw HttpError(400, error.message)
-    }
     const newContact = await addContact({ name, phone, email });
-
     res.status(201).json(newContact);
+
   } catch (error) {
     next(error);
   }
@@ -67,13 +61,11 @@ export async function updateContact(req, res, next) {
   try {
     const { id } = req.params;
     const updateFields = req.body;
-    
-    const availableContact = await getContactById(id);
-    if (!availableContact) {
+  
+     const updatedContact = await modifyContact(id, updateFields);
+      if (!updatedContact) {
       throw HttpError(404);
     }
-
-    const updatedContact = await modifyContact(id, updateFields);
 
     return res.status(200).json(updatedContact);
 
