@@ -18,8 +18,8 @@ export const updateContactSchema = Joi.object({
         .min(2)
         .max(50),
     email: Joi.string()
-        .email({ minDomainSegments: 2, tlds: { allow: false } })
-        .required(),
+        .email({ minDomainSegments: 2, tlds: { allow: false } }),
     phone: Joi.string()
-        .pattern(/^(\+?38)?(0\d{9})$/),
-});
+        .pattern(/^(\+?38)?(0\d{9})$/)
+})
+    .min(1).message("Body must have at least one field");
