@@ -76,15 +76,15 @@ export async function updateStatusContact(req, res, next) {
     const { id } = req.params;
     const { favorite } = req.body;
 
-    const upContact = await Contact.findByIdAndUpdate(id, { favorite }, {
+    const updatedContact = await Contact.findByIdAndUpdate(id, { favorite }, {
       new: true,
     });
 
-    if (!upContact) {
+    if (!updatedContact) {
       throw HttpError(404);
     }
-    
-    res.status(200).json(upContact);
+
+    res.status(200).json(updatedContact);
 
   } catch (error) {
     next(error)  
