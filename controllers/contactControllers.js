@@ -1,16 +1,9 @@
-import {
-  listContacts,
-  addContact,
-  getContactById,
-  removeContact
-} from "../services/contactsServices.js";
 import HttpError from "../helpers/HttpError.js";
-
-import { createContactSchema } from "../schema/contactsSchemas.js"
+import Contact from "../models/contact.js";
 
 export async function getAllContacts(req, res, next) {
   try {
-    const allContacts = await listContacts();
+    const allContacts = await Contact.find();
     res.status(200).json(allContacts);
   } catch (error) {
     next(error);
@@ -20,12 +13,11 @@ export async function getAllContacts(req, res, next) {
 export async function getOneContact(req, res,) {
   try {
     const { id } = req.params;
-    const oneContact = await getContactById(id);
+    const oneContact = await Contact.findById(id);
     if (oneContact) {
       res.status(200).json(oneContact);
     } else {
-      const error404 = HttpError(404);
-      next(error404);
+      throw HttpError(404);
     }
   } catch (error) {
     next(error);
@@ -35,13 +27,13 @@ export async function getOneContact(req, res,) {
 export async function deleteContact(req, res, next) {
   try {
     const { id } = req.params;
-    const deletedContact = await removeContact(id);
+    const deletedContact = await Contact.findByIdAndDelete(id);
     if (deletedContact) {
       res.status(200).json(deletedContact);
     } else {
-      const error404 = HttpError(404);
-      next(error404);
+      throw HttpError(404);
     }
+
   } catch (error) {
     next(error);
   }
@@ -51,18 +43,50 @@ export async function createContact(req, res, next) {
   try {
     const { name, email, phone } = req.body;
 
-    const { error, value } = createContactSchema.validate({ name, email, phone }, { convert: false }
-    );
-    
-    if (typeof error !== "undefined") {
-      return res.status(400).json({ message: error.message })
-    }
-    const newContact = await addContact({ name, phone, email });
-
+    const newContact = await Contact.create({ name, phone, email });
     res.status(201).json(newContact);
+
   } catch (error) {
     next(error);
   }
 };
 
-export function updateContact(req, res) { };
+export async function updateContact(req, res, next) { 
+  try {
+    const { id } = req.params;
+    const updateFields = req.body;
+  
+    const updatedContact = await Contact.findByIdAndUpdate(id, updateFields, {
+       new: true,
+     });
+      
+    if (!updatedContact) {
+      throw HttpError(404);
+    }
+
+    return res.status(200).json(updatedContact);
+
+  } catch (error) {
+    next(error);  
+  }
+};
+
+export async function updateStatusContact(req, res, next) {
+  try {
+    const { id } = req.params;
+    const { favorite } = req.body;
+
+    const updatedContact = await Contact.findByIdAndUpdate(id, { favorite }, {
+      new: true,
+    });
+
+    if (!updatedContact) {
+      throw HttpError(404);
+    }
+
+    res.status(200).json(updatedContact);
+
+  } catch (error) {
+    next(error)  
+  }  
+};
