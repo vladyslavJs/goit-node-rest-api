@@ -1,13 +1,17 @@
 import express from "express";
 
-import { register, login, logout } from "../controllers/userControllers.js"
+
+import { register, login, logout, current } from "../controllers/userControllers.js";
+import { autMiddleware } from "../helpers/authMiddleware.js";
+import { validateBody } from "../helpers/validateBody.js";
 
 const usersRouter = express.Router();
 const jsonParser = express.json();
 
-usersRouter.post("/register", jsonParser, register);
-usersRouter.post("/login", jsonParser, login);
-usersRouter.post("/logout", jsonParser, logout);
+usersRouter.post("/register", validateBody, jsonParser, register);
+usersRouter.post("/login", validateBody, jsonParser, login);
+usersRouter.post("/logout", autMiddleware, jsonParser, logout);
+usersRouter.post("/current", current);
 
 
 export default usersRouter;
