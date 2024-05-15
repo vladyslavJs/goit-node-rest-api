@@ -2,7 +2,7 @@ import jwt, { decode } from "jsonwebtoken";
 import User from "../models/user.js";
 import HttpError from "./HttpError.js";
 
-export async function autMiddleware(req, res, next) {
+export const autMiddleware = async (req, res, next) => {
     const authorizationHeader = req.headers.authorization;
 
     if (typeof authorizationHeader === "undefined") {
@@ -44,3 +44,4 @@ export async function autMiddleware(req, res, next) {
         next(error);
     }
 }
+
