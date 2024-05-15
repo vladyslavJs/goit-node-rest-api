@@ -10,7 +10,7 @@ import {
 
 import { createContactSchema, updateContactSchema, updateStatusContactSchema } from "../schema/contactsSchemas.js";
 
-import validateBody from "../helpers/validateBody.js";
+import { validateBody } from "../helpers/validateBody.js";
 import isValidId from "../helpers/isValidId.js";
 
 
