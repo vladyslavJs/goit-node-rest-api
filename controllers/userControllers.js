@@ -12,15 +12,17 @@ export async function register(req, res, next) {
             throw HttpError(409, "Email in use");
         }
         const passwordHash = await bcrypt.hash(password, 10);
-        await User.create(
-            {
-                ...req.body,
-                password: passwordHash,
-            });
+
+        const newUser = await User.create({ email, password: passwordHash });
+
+        const { subscription } = newUser;
 
         res.status(201).json({
-            message: "Registration successfully",
-            user: { email, subscription: "starter" }
+            user:
+            {
+                email,
+                subscription,
+            },
         });
     } catch (error) {
         next(error);
@@ -44,18 +46,27 @@ export async function login(req, res, next) {
             throw HttpError(401, "Email or password is incorrect");
         }
 
-        const JWT_SECRET = process.env.JWT_SECRET;
-        const payload = { id: user._id, name: user.name };
+        const payload =
+        {
+            id: user._id,
+            name: user.name,
+        };
 
         const token = jwt.sign(
             payload,
-            JWT_SECRET,
-            { expiresIn: "10h" },
+            process.env.JWT_SECRET,
+            { expiresIn: "1h" },
         );
 
         await User.findByIdAndUpdate(user._id, { token });
 
-        res.status(201).json({ token: token, user: { email, subscription: user.subscription } });
+        res.status(201).json({
+            token,
+            user: {
+                email,
+                subscription: user.subscription,
+            },
+        });
     } catch (error) {
         next(error);
     }

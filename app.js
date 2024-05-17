@@ -6,7 +6,7 @@ import cors from "cors";
 import contactsRouter from "./routes/contactsRouter.js";
 import usersRouter from "./routes/usersRouter.js";
 import "./db.js";
-import { autMiddleware } from "./helpers/authMiddleware.js";
+import { authMiddleware } from "./helpers/authMiddleware.js";
 
 const app = express();
 
@@ -14,7 +14,7 @@ app.use(morgan("dev"));
 app.use(cors());
 app.use(express.json());
 
-app.use("/api/contacts", autMiddleware, contactsRouter);
+app.use("/api/contacts", authMiddleware, contactsRouter);
 app.use("/api/users", usersRouter);
 
 

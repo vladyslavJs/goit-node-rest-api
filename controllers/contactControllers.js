@@ -4,7 +4,8 @@ import Contact from "../models/contact.js";
 export async function getAllContacts(req, res, next) {
   try {
     const allContacts = await Contact.find({ owner: req.user.id });
-    res.status(200).json(allContacts);
+
+    return res.status(200).json(allContacts);
   } catch (error) {
     next(error);
   }
@@ -16,7 +17,7 @@ export async function getOneContact(req, res,) {
   try {
     const oneContact = await Contact.findOne({ _id: id, owner: req.user.id });
     if (oneContact) {
-      res.status(200).json(oneContact);
+      return res.status(200).json(oneContact);
     } else {
       throw HttpError(404);
     }

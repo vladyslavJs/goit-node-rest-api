@@ -1,47 +1,42 @@
-import jwt, { decode } from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 import User from "../models/user.js";
-import HttpError from "./HttpError.js";
 
-export const autMiddleware = async (req, res, next) => {
-    const authorizationHeader = req.headers.authorization;
+export function authMiddleware(req, res, next) {
+    const authToken = req.headers.authorization;
 
-    if (typeof authorizationHeader === "undefined") {
-        return next(HttpError(401, "Not authorized"));
+    if (typeof authToken === "undefined") {
+        return res.status(401).send("Not authorized");
     }
 
-    const [bearer, token] = authorizationHeader.split(" ", 2);
-    console.log({ bearer, token });
+    const [bearer, token] = authToken.split(" ", 2);
 
     if (bearer !== "Bearer") {
-        return next(HttpError(401, "Not authorized"));
+        return res.status(401).send("Not authorized");
     }
 
-    const JWT_SECRET = process.env.JWT_SECRET;
-
-    jwt.verify(token, JWT_SECRET, async (error, decode) => {
+    jwt.verify(token, process.env.JWT_KEY, async (error, decode) => {
         if (error) {
-            return next(HttpError(401, "Not authorized"));
+            return res.status(401).send("Not authorized");
         }
-    })
+        try {
+            const user = await User.findById(decode.id);
 
-    try {
-        const user = await User.findById(decode.id);
-        if (user === null) {
-            return next(HttpError(401, "Not authorized"));
+            if (user === null) {
+                return res.status(401).send("Not authorized");
+            }
+
+            if (user.token !== token) {
+                return res.status(401).send("Not authorized");
+            }
+
+            req.user = {
+                id: decode.id,
+                email: decode.email,
+            };
+
+            next();
+        } catch (error) {
+            next(error);
         }
-
-        if (user.token !== token) {
-            return next(HttpError(401, "Not authorized"));
-        }
-        console.log({ decode });
-
-        req.user = {
-            id: decode.id,
-            email: decode.email,
-        };
-
-    } catch (error) {
-        next(error);
-    }
+    });
 }
-
