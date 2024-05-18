@@ -1,6 +1,5 @@
 import express from "express";
 
-
 import { register, login, logout, current } from "../controllers/userControllers.js";
 import { authMiddleware } from "../helpers/authMiddleware.js";
 import { validateBody } from "../helpers/validateBody.js";
@@ -12,7 +11,7 @@ const jsonParser = express.json();
 usersRouter.post("/register", validateBody(registerUserSchema), jsonParser, register);
 usersRouter.post("/login", validateBody(loginUserSchema), jsonParser, login);
 usersRouter.post("/logout", authMiddleware, jsonParser, logout);
-usersRouter.post("/current", authMiddleware, current);
+usersRouter.get("/current", authMiddleware, current);
 
 
 export default usersRouter;
