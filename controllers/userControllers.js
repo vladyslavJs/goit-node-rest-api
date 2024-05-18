@@ -1,7 +1,8 @@
-import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken"
+import bcrypt from "bcrypt";
 import User from "../models/user.js"
 import HttpError from "../helpers/HttpError.js";
+import "dotenv/config";
 
 export async function register(req, res, next) {
     const { email, password } = req.body;
@@ -63,7 +64,7 @@ export async function login(req, res, next) {
         res.status(201).json({
             token,
             user: {
-                email,
+                email: user.email,
                 subscription: user.subscription,
             },
         });
@@ -74,7 +75,7 @@ export async function login(req, res, next) {
 
 export async function logout(req, res, next) {
     try {
-        const user = await User.findByIdAndUpdate({ _id: req.user.id }, { token: null });
+        const user = await User.findByIdAndUpdate(req.user.id, { token: null });
 
         if (user === null) {
             throw HttpError(401, "Not authorized")
@@ -87,12 +88,17 @@ export async function logout(req, res, next) {
 }
 
 export async function current(req, res, next) {
-    const user = User.findById(req.user.id)
+    try {
+        const user = await User.findById(req.user.id)
 
-    if (user === null) {
-        throw HttpError(401, "Not authorized")
+        if (user === null) {
+            throw HttpError(401, "Not authorized")
+        }
+
+        res.status(200).json({ email: user.email, subscription: user.subscription });
     }
-
-    res.status(200).json({ email: user.email, subscription: user.subscription });
+    catch (error) {
+        next(error);
+    }
 }
 
