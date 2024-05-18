@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import User from "../models/user.js";
+import "dotenv/config";
 
 export function authMiddleware(req, res, next) {
     const authToken = req.headers.authorization;
@@ -14,7 +15,7 @@ export function authMiddleware(req, res, next) {
         return res.status(401).send("Not authorized");
     }
 
-    jwt.verify(token, process.env.JWT_KEY, async (error, decode) => {
+    jwt.verify(token, process.env.JWT_SECRET, async (error, decode) => {
         if (error) {
             return res.status(401).send("Not authorized");
         }
