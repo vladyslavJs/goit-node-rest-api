@@ -3,6 +3,9 @@ import bcrypt from "bcrypt";
 import User from "../models/user.js"
 import HttpError from "../helpers/HttpError.js";
 import "dotenv/config";
+import gravatar from "gravatar";
+import fs from "fs/promises";
+import path from "node:path";
 
 export async function register(req, res, next) {
     const { email, password } = req.body;
@@ -12,9 +15,12 @@ export async function register(req, res, next) {
         if (user !== null) {
             throw HttpError(409, "Email in use");
         }
+
+        const avatarURL = gravatar.url(email);
+
         const passwordHash = await bcrypt.hash(password, 10);
 
-        const newUser = await User.create({ email, password: passwordHash });
+        const newUser = await User.create({ email, password: passwordHash, avatarURL });
 
         const { subscription } = newUser;
 
@@ -23,6 +29,7 @@ export async function register(req, res, next) {
             {
                 email,
                 subscription,
+                avatarURL,
             },
         });
     } catch (error) {
@@ -99,6 +106,48 @@ export async function current(req, res, next) {
     }
     catch (error) {
         next(error);
+    }
+}
+
+export async function getAvatar(req, res, next) {
+    try {
+        const user = await User.findById(req.user.id);
+
+        if (user === null) {
+            throw HttpError(404, "User not found");
+        }
+
+        if (user.avatarURL === null) {
+            throw HttpError(404, "Avatar not found");
+        }
+        res.sendFile(path.resolve("public/avatars", user.avatarURL));
+
+    } catch (error) {
+        next(next);
+    }
+}
+
+export async function updateAvatar(req, res, next) {
+    try {
+        await fs.rename(
+            req.file.path,
+            path.resolve("public/avatars", req.file.filename),
+        );
+
+        const user = await User.findByIdAndUpdate(
+            req.user.id,
+            { avatarURL: req.file.filename },
+            { new: true },
+        );
+
+        if (user == null) {
+            throw HttpError(404, "User not found");
+        }
+
+        res.send(user);
+
+    } catch (error) {
+        next(next);
     }
 }
 
