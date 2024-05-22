@@ -19,6 +19,10 @@ const userSchema = new mongoose.Schema(
             enum: ["starter", "pro", "business"],
             default: "starter"
         },
+        token: {
+            type: String,
+            default: null,
+        },
         avatarURL: {
             type: String,
             default: null,

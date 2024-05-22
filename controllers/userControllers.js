@@ -6,6 +6,7 @@ import "dotenv/config";
 import gravatar from "gravatar";
 import fs from "fs/promises";
 import path from "node:path";
+import Jimp from "jimp";
 
 export async function register(req, res, next) {
     const { email, password } = req.body;
@@ -73,6 +74,7 @@ export async function login(req, res, next) {
             user: {
                 email: user.email,
                 subscription: user.subscription,
+                avatarURL: user.avatarURL,
             },
         });
     } catch (error) {
@@ -123,20 +125,25 @@ export async function getAvatar(req, res, next) {
         res.sendFile(path.resolve("public/avatars", user.avatarURL));
 
     } catch (error) {
-        next(next);
+        next(error);
     }
 }
 
 export async function updateAvatar(req, res, next) {
     try {
+        const absolvePath = path.resolve("public/avatars", req.file.filename);
+
         await fs.rename(
             req.file.path,
-            path.resolve("public/avatars", req.file.filename),
+            absolvePath,
         );
+
+        const avatarHandling = await Jimp.read(absolvePath);
+        await avatarHandling.resize(250, 250).writeAsync(absolvePath);
 
         const user = await User.findByIdAndUpdate(
             req.user.id,
-            { avatarURL: req.file.filename },
+            { avatarURL: `/avatars/${req.file.filename}` },
             { new: true },
         );
 
@@ -144,10 +151,10 @@ export async function updateAvatar(req, res, next) {
             throw HttpError(404, "User not found");
         }
 
-        res.send(user);
+        res.status(200).json({ avatarURL: user.avatarURL });
 
     } catch (error) {
-        next(next);
+        next(error);
     }
 }
 

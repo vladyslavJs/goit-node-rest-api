@@ -16,8 +16,8 @@ usersRouter.post("/login", validateBody(loginUserSchema), jsonParser, login);
 usersRouter.post("/logout", authMiddleware, jsonParser, logout);
 usersRouter.get("/current", authMiddleware, current);
 
-usersRouter.get("/avatar", authMiddleware, getAvatar);
-usersRouter.patch("/avatar", authMiddleware, update.single("avatar"), updateAvatar);
+usersRouter.get("/avatars", authMiddleware, getAvatar);
+usersRouter.patch("/avatars", update.single("avatar"), updateAvatar);
 
 
 export default usersRouter;
