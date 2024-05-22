@@ -7,6 +7,7 @@ import gravatar from "gravatar";
 import fs from "fs/promises";
 import path from "node:path";
 import Jimp from "jimp";
+import { log } from "console";
 
 export async function register(req, res, next) {
     const { email, password } = req.body;
@@ -131,6 +132,7 @@ export async function getAvatar(req, res, next) {
 
 export async function updateAvatar(req, res, next) {
     try {
+        console.log('req.file', req.file);
         const absolvePath = path.resolve("public/avatars", req.file.filename);
 
         await fs.rename(

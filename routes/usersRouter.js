@@ -17,7 +17,7 @@ usersRouter.post("/logout", authMiddleware, jsonParser, logout);
 usersRouter.get("/current", authMiddleware, current);
 
 usersRouter.get("/avatars", authMiddleware, getAvatar);
-usersRouter.patch("/avatars", update.single("avatar"), updateAvatar);
+usersRouter.patch("/avatars", authMiddleware, update.single("avatar"), updateAvatar);
 
 
 export default usersRouter;
