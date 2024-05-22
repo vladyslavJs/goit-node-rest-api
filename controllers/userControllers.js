@@ -132,6 +132,10 @@ export async function getAvatar(req, res, next) {
 
 export async function updateAvatar(req, res, next) {
     try {
+        if (req.file === undefined) {
+            return res.status(400).send("Please select the avatar file");
+        }
+
         console.log('req.file', req.file);
         const absolvePath = path.resolve("public/avatars", req.file.filename);
 
