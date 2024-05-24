@@ -3,6 +3,11 @@ import bcrypt from "bcrypt";
 import User from "../models/user.js"
 import HttpError from "../helpers/HttpError.js";
 import "dotenv/config";
+import gravatar from "gravatar";
+import fs from "fs/promises";
+import path from "node:path";
+import Jimp from "jimp";
+import { log } from "console";
 
 export async function register(req, res, next) {
     const { email, password } = req.body;
@@ -12,9 +17,12 @@ export async function register(req, res, next) {
         if (user !== null) {
             throw HttpError(409, "Email in use");
         }
+
+        const avatarURL = gravatar.url(email);
+
         const passwordHash = await bcrypt.hash(password, 10);
 
-        const newUser = await User.create({ email, password: passwordHash });
+        const newUser = await User.create({ email, password: passwordHash, avatarURL });
 
         const { subscription } = newUser;
 
@@ -23,6 +31,7 @@ export async function register(req, res, next) {
             {
                 email,
                 subscription,
+                avatarURL,
             },
         });
     } catch (error) {
@@ -66,6 +75,7 @@ export async function login(req, res, next) {
             user: {
                 email: user.email,
                 subscription: user.subscription,
+                avatarURL: user.avatarURL,
             },
         });
     } catch (error) {
@@ -98,6 +108,58 @@ export async function current(req, res, next) {
         res.status(200).json({ email: user.email, subscription: user.subscription });
     }
     catch (error) {
+        next(error);
+    }
+}
+
+export async function getAvatar(req, res, next) {
+    try {
+        const user = await User.findById(req.user.id);
+
+        if (user === null) {
+            throw HttpError(404, "User not found");
+        }
+
+        if (user.avatarURL === null) {
+            throw HttpError(404, "Avatar not found");
+        }
+        res.sendFile(path.resolve("public/avatars", user.avatarURL));
+
+    } catch (error) {
+        next(error);
+    }
+}
+
+export async function updateAvatar(req, res, next) {
+    try {
+        if (req.file === undefined) {
+            return res.status(400).send("Please select the avatar file");
+        }
+
+        console.log('req.file', req.file);
+        const absolvePath = path.resolve("public/avatars", req.file.filename);
+
+        await fs.rename(
+            req.file.path,
+            absolvePath,
+        );
+
+        const avatarHandling = await Jimp.read(absolvePath);
+        await avatarHandling.resize(250, 250).writeAsync(absolvePath);
+
+        const user = await User.findByIdAndUpdate(
+            req.user.id,
+            { avatarURL: `/avatars/${req.file.filename}` },
+            { new: true },
+        );
+
+        if (user == null) {
+            throw HttpError(404, "User not found");
+        }
+
+        res.status(200).json({ avatarURL: user.avatarURL });
+
+    } catch (error) {
         next(error);
     }
 }

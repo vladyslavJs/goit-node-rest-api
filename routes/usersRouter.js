@@ -1,7 +1,10 @@
 import express from "express";
 
-import { register, login, logout, current } from "../controllers/userControllers.js";
+import { register, login, logout, current, getAvatar, updateAvatar } from "../controllers/userControllers.js";
+
 import { authMiddleware } from "../helpers/authMiddleware.js";
+import { update } from "../helpers/upload.js";
+
 import { validateBody } from "../helpers/validateBody.js";
 import { loginUserSchema, registerUserSchema } from "../schema/usersSchemas.js";
 
@@ -12,6 +15,9 @@ usersRouter.post("/register", validateBody(registerUserSchema), jsonParser, regi
 usersRouter.post("/login", validateBody(loginUserSchema), jsonParser, login);
 usersRouter.post("/logout", authMiddleware, jsonParser, logout);
 usersRouter.get("/current", authMiddleware, current);
+
+usersRouter.get("/avatars", authMiddleware, getAvatar);
+usersRouter.patch("/avatars", authMiddleware, update.single("avatar"), updateAvatar);
 
 
 export default usersRouter;
