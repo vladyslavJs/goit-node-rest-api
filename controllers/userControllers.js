@@ -1,13 +1,18 @@
 import jwt from "jsonwebtoken"
 import bcrypt from "bcrypt";
 import User from "../models/user.js"
+
 import HttpError from "../helpers/HttpError.js";
+import { sendMail } from "../helpers/emailVerify.js";
+
 import "dotenv/config";
 import gravatar from "gravatar";
 import fs from "fs/promises";
 import path from "node:path";
 import Jimp from "jimp";
 import { log } from "console";
+import { nanoid } from "nanoid";
+
 
 export async function register(req, res, next) {
     const { email, password } = req.body;
@@ -21,8 +26,22 @@ export async function register(req, res, next) {
         const avatarURL = gravatar.url(email);
 
         const passwordHash = await bcrypt.hash(password, 10);
+        const verifyToken = nanoid();
 
-        const newUser = await User.create({ email, password: passwordHash, avatarURL });
+        const newUser = await User.create({
+            email,
+            password: passwordHash,
+            avatarURL,
+        });
+
+        sendMail({
+            to: email,
+            from: "vladyslavmelnyk15@gmail.com",
+            subject: "Welcome to our service!",
+            html: `<h2 style="color: #808080">To complete your registration and activate your account, please click on the following link:<a href="http://localhost:3000/api/usersRouter/verify/${verifyToken}">link<a></h2>`,
+            text: `To complete your registration and activate your account, please click on the following link:<a href="http://localhost:3000/api/usersRouter/verify/${verifyToken}"`
+        });
+
 
         const { subscription } = newUser;
 
