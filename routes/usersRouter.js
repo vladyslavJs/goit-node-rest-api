@@ -1,12 +1,12 @@
 import express from "express";
 
-import { register, login, logout, current, getAvatar, updateAvatar } from "../controllers/userControllers.js";
+import { register, login, logout, current, getAvatar, updateAvatar, verify, resendVerificationEmail } from "../controllers/userControllers.js";
 
 import { authMiddleware } from "../helpers/authMiddleware.js";
 import { update } from "../helpers/upload.js";
 
 import { validateBody } from "../helpers/validateBody.js";
-import { loginUserSchema, registerUserSchema } from "../schema/usersSchemas.js";
+import { loginUserSchema, registerUserSchema, verifyUserSchema } from "../schema/usersSchemas.js";
 
 const usersRouter = express.Router();
 const jsonParser = express.json();
@@ -18,6 +18,9 @@ usersRouter.get("/current", authMiddleware, current);
 
 usersRouter.get("/avatars", authMiddleware, getAvatar);
 usersRouter.patch("/avatars", authMiddleware, update.single("avatar"), updateAvatar);
+
+usersRouter.get("/verify/:verificationToken", verify);
+usersRouter.post("verify", validateBody(verifyUserSchema), resendVerificationEmail);
 
 
 export default usersRouter;
