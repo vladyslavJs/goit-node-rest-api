@@ -183,3 +183,19 @@ export async function updateAvatar(req, res, next) {
     }
 }
 
+export async function verify(req, res, next) {
+    try {
+
+    } catch (error) {
+        next(error)
+
+    }
+}
+
+export async function resendVerificationEmail(req, res, next) {
+    try {
+
+    } catch (error) {
+        next(error)
+    }
+}
