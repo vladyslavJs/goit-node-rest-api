@@ -26,7 +26,7 @@ export async function register(req, res, next) {
         const avatarURL = gravatar.url(email);
 
         const passwordHash = await bcrypt.hash(password, 10);
-        const verifyToken = nanoid();
+        const verificationToken = nanoid();
 
         const newUser = await User.create({
             email,
@@ -36,10 +36,10 @@ export async function register(req, res, next) {
 
         sendMail({
             to: email,
-            from: "vladyslavmelnyk15@gmail.com",
+            from: process.env.EMAIL_SENDER,
             subject: "Welcome to our service!",
-            html: `<h2 style="color: #808080">To complete your registration and activate your account, please click on the following link:<a href="http://localhost:3000/api/usersRouter/verify/${verifyToken}">link<a></h2>`,
-            text: `To complete your registration and activate your account, please click on the following link:<a href="http://localhost:3000/api/usersRouter/verify/${verifyToken}"`
+            html: `<h2 style="color: #808080">To complete your registration and activate your account, please click on the following link:<a href="http://localhost:3000/api/usersRouter/verify/${verificationToken}">link<a></h2>`,
+            text: `To complete your registration and activate your account, please click on the following link:<a href="http://localhost:3000/api/usersRouter/verify/${verificationToken}"`
         });
 
 
@@ -184,7 +184,15 @@ export async function updateAvatar(req, res, next) {
 }
 
 export async function verify(req, res, next) {
+    const { verificationToken } = req.params;
     try {
+        const user = await User.findOneAndUpdate({ verificationToken }, { verify: true, verificationToken: null })
+
+        if (user === null) {
+            throw HttpError(404, "User not found");
+        }
+
+        res.status(200).json({ nessage: "Verification successful" });
 
     } catch (error) {
         next(error)
@@ -193,7 +201,29 @@ export async function verify(req, res, next) {
 }
 
 export async function resendVerificationEmail(req, res, next) {
+    const { email } = req.body;
     try {
+        const verificationToken = nanoid();
+
+        const user = await User.findOneAndUpdate({ email }, { verificationToken }, { new: true });
+
+        if (user === null) {
+            return next(HttpError(404, "User not found"));
+        }
+
+        if (user.verify) {
+            return next(HttpError(400, "Verification has already been passed"));
+        }
+
+        await sendMail({
+            to: email,
+            from: process.env.EMAIL_SENDER,
+            subject: "Re-verification in Contact Kingdom",
+            html: `<h2 style="color: #8080">Your re-verification <a href="http://localhost:3000/users/verify/${verificationToken}">link</a></h2>`,
+            text: `Your re-verification link: http://localhost:3000/users/verify/${verificationToken}`,
+        })
+
+        res.status(201).json({ message: "Verification email sent" })
 
     } catch (error) {
         next(error)
