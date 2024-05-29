@@ -1,8 +1,8 @@
-import nodemailer from "nodemailer";
 import "dotenv/config";
+import nodemailer from "nodemailer";
 
 const transport = nodemailer.createTransport({
-    host: "sandbox.smtp.maitrap.io",
+    host: "sandbox.smtp.mailtrap.io",
     port: 2525,
     auth: {
         user: process.env.MAILTRAP_USERNAME,
@@ -13,6 +13,7 @@ const transport = nodemailer.createTransport({
 export const sendMail = (message) => {
     return transport.sendMail(message);
 };
+
 
 
 
