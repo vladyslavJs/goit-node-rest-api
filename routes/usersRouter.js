@@ -19,7 +19,7 @@ usersRouter.get("/avatars", authMiddleware, getAvatar);
 usersRouter.patch("/avatars", authMiddleware, update.single("avatar"), updateAvatar);
 
 usersRouter.get("/verify/:verificationToken", verify);
-usersRouter.post("verify", validateBody(verifyUserSchema), resendVerificationEmail);
+usersRouter.post("/verify", validateBody(verifyUserSchema), resendVerificationEmail);
 
 
 export default usersRouter;
