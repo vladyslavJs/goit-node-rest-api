@@ -186,7 +186,7 @@ export async function verify(req, res, next) {
             throw HttpError(404, "User not found");
         }
 
-        res.status(200).json({ nessage: "Verification successful" });
+        res.status(200).json({ message: "Verification successful" });
 
     } catch (error) {
         next(error)
