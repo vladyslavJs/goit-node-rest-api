@@ -14,5 +14,5 @@ export const loginUserSchema = Joi.object({
 })
 
 export const verifyUserSchema = Joi.object({
-    emal: Joi.string().pattern(emailRegexp).lowercase().trim().required().messages({ "any.required": "Missing required field email" }),
+    email: Joi.string().pattern(emailRegexp).lowercase().trim().required().messages({ "any.required": "Missing required field email" }),
 })
