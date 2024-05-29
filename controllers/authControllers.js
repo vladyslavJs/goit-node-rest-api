@@ -26,14 +26,16 @@ export async function register(req, res, next) {
             email,
             password: passwordHash,
             avatarURL,
+            verificationToken,
         });
 
         sendMail({
             to: email,
             from: process.env.EMAIL_SENDER,
             subject: "Welcome to our service!",
-            html: `<h2 style="color: #808080">To complete your registration and activate your account, please click on the following link:<a href="http://localhost:3000/api/usersRouter/verify/${verificationToken}">link<a></h2>`,
-            text: `To complete your registration and activate your account, please click on the following link:<a href="http://localhost:3000/api/usersRouter/verify/${verificationToken}"`
+            html: `<h2 style="color: #000000; font-family: Arial;">To complete your registration and activate your account, <span style="color: #FF0000;">please</span> click on the following link:<a href="http://localhost:3000/users/verify/${verificationToken}"> link<a>
+            </h2><p style="font-size: 22px; font-family: Arial; color: #000000; font-weight: 600;text-align: center;">Nice to meet you ✅</p>`,
+            text: `To complete your registration and activate your account, please click on the following link:<a href="http://localhost:3000/users/verify/${verificationToken}"`
         });
 
 
@@ -67,6 +69,10 @@ export async function login(req, res, next) {
         if (comparePassword === false) {
             console.log("Password");
             throw HttpError(401, "Email or password is incorrect");
+        }
+
+        if (user.verify === false) {
+            throw HttpError(401, "Please verify your email");
         }
 
         const payload =
