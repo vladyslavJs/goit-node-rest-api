@@ -93,11 +93,8 @@ export async function resendVerificationEmail(req, res, next) {
 
         await sendMail({
             to: email,
-            from: process.env.EMAIL_SENDER,
-            subject: "Re-verification in Contact Kingdom",
-            html: `<h2 style="color: #000000; font-family: Arial;">Your re-verification <a href="http://localhost:3000/users/verify/${verificationToken}">link</a></h2>`,
-            text: `Your re-verification link: http://localhost:3000/users/verify/${verificationToken}`,
-        })
+            verificationToken: user.verificationToken,
+        });
 
         res.status(201).json({ message: "Verification email sent" })
 
