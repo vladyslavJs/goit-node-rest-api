@@ -6,6 +6,7 @@ import path from "path";
 
 import contactsRouter from "./routes/contactsRouter.js";
 import usersRouter from "./routes/usersRouter.js";
+import authRouter from "./routes/authRouter.js"
 import "./db.js";
 import { authMiddleware } from "./helpers/authMiddleware.js";
 
@@ -17,7 +18,9 @@ app.use(express.json());
 app.use("/avatars", express.static(path.resolve("public/avatars")));
 
 app.use("/api/contacts", authMiddleware, contactsRouter);
-app.use("/api/users", usersRouter);
+app.use("/api/users", authRouter);
+app.use("/users", usersRouter);
+
 
 
 app.use((req, res, next) => {
